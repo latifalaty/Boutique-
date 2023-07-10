@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>inscri dans votre site préféré </title>  
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" href="projet.css"/>
+<script href="projet.js"></script>
+</head>
+<body >
+
+    <img class="img" src="mariage.jpeg" alt="bienvenue"/>
+
+        <fieldset >
+        <form action="singup.php" method="post" name="form" class="form">
+        <label for="nom"> votre nom:</label>
+        <input type="text" id="nom" name="nom" placeholder="veuillez saisir votre nom"/>
+        <br>
+        <br>
+        <br>
+        <label for="prenom">votre prénom:</label>
+        <input type="text" id="prenom" name="prenom" placeholder="veuillez saisir votre prénom"/>
+        <br/>
+        <br>
+        <br>
+        <label for="age">votre age</label>
+        <input type="text" id="age" name="age" placeholder="veuillez saisir votre age"/>
+        <br>
+        <br>
+        <br>
+        <label> genre:</label>
+        <input type="radio"  id="f" name="genre"/>
+        <label for="f"> femme</label>
+        <input type="radio" id="h" name="genre/>
+        <label for="h">homme</label>
+        <br>
+        <br>
+        <br>
+        <label> catégorie de robe à acheter:</label>
+        <select name="c" >
+            <option> robe soiré</option>
+            <option> robe de mariage</option>
+        </select> 
+        <br>
+        <label for="tel">votre numéro de téléphone :</label>
+        <input type="tel" name="tel" id="tel" placeholder="veuillez saisir votre numéro de téléphone"/>
+        <br>
+        <br>
+        <br>
+        <label for="adresse">votre adresse:</label>
+        <input type="text" name="adresse" id="adresse" placeholder="veuillez saisir votre adresse" />
+        
+
+        <br>
+        <label for="uname"> user name:</label>
+        <input type="text" id="uname" name="uname" placeholder="veuillez saisir votre nom d'utilisateur"/>
+        <label for="password">votre mot de passe</label>
+        <input type="text" name="password" id="password" placeholder="veuillez saisir votre mot de passe" />
+        <br>
+        <label for="repassword">resaisie de votre mot de passe</label>
+        <input type="text" name="re_password" id="re_password" placeholder="veuillez resaisir votre mot de passe" />
+        <br>
+        <br>
+        <button class="ok" type="submit" >s'inscrire</button>
+         <button class="no"  type="reset" onclick="history. back() " > annuler</button>
+        
+        </form></fieldset>
+        <img class="img" src="soiré.jpg"/>
+
+</body>
+
+
+
+
+</html>

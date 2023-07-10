@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" >
+    <meta name="description">
+    <meta name="author" >
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+  </head>
+<body>
+<div class="container bg-light rounded">
+<div class="row">
+<div class="col-md-12 mt-3">
+<div class="row">
+<div class="col-md-5">
+
+<h4>Votre commande</h4>
+</div>
+</div>
+<div class="row">
+<div class="col-md-12 mt-3">
+Nombre de produit(s) dans le panier : <span class="total-count"></span>
+<br /><br />
+<table width="100%" class="show-panier" id="macommande"></table>
+<br />
+<br />
+<div>*Prix total: <b><span class="total-panier" id="prix_total">0.00</span> dinart</b></div>
+<br />
+<i id="livraison-detail">*Livraison incluse</i>
+<div class="text-right"><button class="clear-panier btn btn-danger">Vider le panier</button></div>
+</div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+<script src="panier.js"></script>
+<script>
+function commander(nom,prenom,cp,email,commande,prix_total,message,ville){
+$.ajax({
+url : 'mail.php',
+type : 'GET', 
+data : 'nom=' + nom + '&prenom=' + prenom + '&cp=' + cp + '&email=' + email + '&commande=' + commande + '&prix_total=' + prix_total + '&message=' + message + '&ville=' + ville, 
+dataType : 'html',
+success : function(reponse){
+if (reponse == "1"){$('#mymodal').modal('show');}
+if (reponse == "0"){$('#mymodal_erreur').modal('show');}
+}
+});
+}
+$('#commander').click( function(){
+var nom = document.getElementById("nom").value;
+var prenom = document.getElementById("prenom").value;
+var cp = document.getElementById("cp").value;
+var ville = document.getElementById("ville").value;
+var email = document.getElementById("email").value;
+var commande = document.getElementById("macommande").innerHTML;
+var prix_total = document.getElementById("prix_total").innerHTML;
+var message = document.getElementById("message").value;
+commander(nom,prenom,cp,email,commande,prix_total,message,ville);
+});
+</script>
+<script>
+   // Mon petit panier JS
+// https://www.1formatik.com
+
+// 0 pour désactiver les commandes par lot
+// 1 pour activer la fonctionnalité de commande par lot
+var Qte_Minimum = 0;
+
+// Nombre de produits minimum par lot
+var Qte_Minimum_Valeur = 6; 
+
+// 0 pour désactiver l'ajout du prix de la livraison
+// 1 pour activer la fonctionnalité de modification du prix total pour inclure le prix de la livraison selon un pourcentage du prix total
+// 2 pour activer la fonctionnalité de modification du prix total pour inclure le prix de la livraison selon un forfait fixe
+var Livraison = 0;
+
+// % du prix total total correspondant au prix de la livraison
+var Poucentage_Livraison = 25;
+
+// Forfait de la livraison en euro
+var Forfait_Livraison = 19; 
+
+// les messages concernant la fonctionnalité de commande par lot
+var txt_qte_minimum_bad = "<font color='red'>Attention les quantités ne sont pas correctes, les commandes se font par lot de " + Qte_Minimum_Valeur + " produits</font>";
+var txt_qte_minimum_ok = "<font color='green'>Le nombre de produits est correcte</font>";
+var txt_qte_minimum_defaut = "Les commandes se font par lot de " + Qte_Minimum_Valeur + " produits";
+
+// ne pas modifier la suite sauf si vous désirez modifier le code
+var MonPanier = (function() {
+panier = [];
+function Item(nom, prix, count) {
+this.nom = nom;
+this.prix = prix;
+this.count = count;
+}
+
+function savepanier() {
+sessionStorage.setItem('MonPanier', JSON.stringify(panier));
+}
+
+function loadpanier() {
+panier = JSON.parse(sessionStorage.getItem('MonPanier'));
+}
+if (sessionStorage.getItem("MonPanier") != null) {
+loadpanier();
+}
+
+var obj = {};
+
+obj.ajouter_produit_dans_panier = function(nom, prix, count) {
+for(var item in panier) {
+  if(panier[item].nom === nom) {
+panier[item].count ++;
+savepanier();
+return;
+  }
+}
+var item = new Item(nom, prix, count);
+panier.push(item);
+savepanier();
+}
+
+obj.setCountForItem = function(nom, count) {
+for(var i in panier) {
+  if (panier[i].nom === nom) {
+panier[i].count = count;
+break;
+  }
+}
+};
+
+obj.enlever_produit_de_panier = function(nom) {
+  for(var item in panier) {
+if(panier[item].nom === nom) {
+  panier[item].count --;
+  if(panier[item].count === 0) {
+panier.splice(item, 1);
+  }
+  break;
+}
+}
+savepanier();
+}
+
+obj.enlever_produit_de_panier_tous = function(nom) {
+for(var item in panier) {
+  if(panier[item].nom === nom) {
+panier.splice(item, 1);
+break;
+  }
+}
+savepanier();
+}
+
+obj.clearpanier = function() {
+panier = [];
+savepanier();
+}
+
+obj.totalCount = function() {
+var totalCount = 0;
+for(var item in panier) {
+  totalCount += panier[item].count;
+}
+return totalCount;
+}
+
+obj.totalpanier = function() {
+var totalpanier = 0;
+for(var item in panier) {
+  totalpanier += panier[item].prix * panier[item].count;
+}
+return Number(totalpanier.toFixed(2));
+}
+
+obj.listpanier = function() {
+var panierCopy = [];
+for(i in panier) {
+  item = panier[i];
+  itemCopy = {};
+  for(p in item) {
+itemCopy[p] = item[p];
+  }
+  itemCopy.total = Number(item.prix * item.count).toFixed(2);
+  panierCopy.push(itemCopy)
+}
+return panierCopy;
+}
+
+return obj;
+})();
+
+$('.ajouter-panier').click(function(event) {
+  event.preventDefault();
+  var nom = $(this).data('nom');
+  var prix = Number($(this).data('prix'));
+  MonPanier.ajouter_produit_dans_panier(nom, prix, 1);
+  afficherpanier();
+});
+
+$('.clear-panier').click(function() {
+  MonPanier.clearpanier();
+  afficherpanier();
+});
+
+function afficherpanier() {
+  var panierArray = MonPanier.listpanier();
+  var output = "";
+  for(var i in panierArray) {
+    output += "<tr>"
+      + "<td>" + panierArray[i].nom + "</td>" 
+      + "<td>(" + panierArray[i].prix.toFixed(2) + ")</td>"
+      + "<td class='form-inline'><div><button class='btn btn-primary moins-item' data-nom='" + panierArray[i].nom + "'>-</button>"
+      + "<input type='number' min='1' class='form-control item-count' data-nom='" + panierArray[i].nom + "' value='" + panierArray[i].count + "'>"
+      + "<button class='btn btn-primary plus-item' data-nom='" + panierArray[i].nom + "'>+</button></div></td>"
+      + "<td><button class='btn btn-danger effacer-item' data-nom='" + panierArray[i].nom + "'>X</button></td>"
+      + " = " 
+      + "<td>" + panierArray[i].total + "</td>" 
+      +  "</tr>";
+  }
+  $('.show-panier').html(output);
+  if (Livraison == 1)
+  {
+$('.total-panier').html(((MonPanier.totalpanier()) + (MonPanier.totalpanier()/(100/Poucentage_Livraison))).toFixed(2));
+document.getElementById('livraison-detail').innerHTML = "Livraison incluse: " + Poucentage_Livraison +"% du prix total.";
+  }
+  if (Livraison == 2)
+  {
+$('.total-panier').html((MonPanier.totalpanier() + Forfait_Livraison).toFixed(2));
+document.getElementById('livraison-detail').innerHTML = "Livraison incluse: " + Forfait_Livraison +" euros.";
+  }
+  if (Livraison == 0)
+  {
+$('.total-panier').html(((MonPanier.totalpanier())).toFixed(2));
+  }
+  $('.total-panier-modal').html(MonPanier.totalpanier());
+  $('.total-count').html(MonPanier.totalCount());
+  if ((Qte_Minimum == 1) && (Number.isInteger(MonPanier.totalCount() / Qte_Minimum_Valeur) == false) && (MonPanier.totalCount() != 0))
+  {
+document.getElementById('qte_minimum_report').innerHTML = txt_qte_minimum_bad;
+  }
+  else if ((Qte_Minimum == 1) && (Number.isInteger(MonPanier.totalCount() / Qte_Minimum_Valeur) == true) && (MonPanier.totalCount() != 0))
+  {
+document.getElementById('qte_minimum_report').innerHTML = txt_qte_minimum_ok;
+  }
+  else if (Qte_Minimum == 1)
+  {
+    document.getElementById('qte_minimum_report').innerHTML = txt_qte_minimum_defaut;  
+  }
+  else if (Qte_Minimum == 0)
+  {
+document.getElementById('qte_minimum_report').innerHTML = "";
+  }  
+}
+
+$('.show-panier').on("click", ".effacer-item", function(event) {
+  var nom = $(this).data('nom')
+  MonPanier.enlever_produit_de_panier_tous(nom);
+  afficherpanier();
+})
+
+$('.show-panier').on("click", ".moins-item", function(event) {
+  var nom = $(this).data('nom')
+  MonPanier.enlever_produit_de_panier(nom);
+  afficherpanier();
+})
+
+$('.show-panier').on("click", ".plus-item", function(event) {
+  var nom = $(this).data('nom')
+  MonPanier.ajouter_produit_dans_panier(nom);
+  afficherpanier();
+})
+
+$('.show-panier').on("change", ".item-count", function(event) {
+   var nom = $(this).data('nom');
+   var count = Number($(this).val());
+  MonPanier.setCountForItem(nom, count);
+  afficherpanier();
+});
+
+afficherpanier();
+</script>
+</body>
+</html>
